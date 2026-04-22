@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2 class="text-2xl font-bold mb-4">Feed</h2>
+
+{% for post in posts %}
+<div class="bg-white p-4 mb-4 rounded-xl shadow">
+
+    <div class="flex items-center mb-2">
+        <div class="w-10 h-10 bg-gray-300 rounded-full mr-3"></div>
+        <h3 class="font-semibold">{{ post.author.username }}</h3>
+    </div>
+
+    <p class="mb-3 text-gray-800">{{ post.content }}</p>
+
+    {% if post.image %}
+        <img src="{{ post.image.url }}" class="rounded-lg mb-3">
+    {% endif %} 
+
+    <div class="mt-3 flex items-center gap-4">
+
+        <button onclick="likePost({{ post.id }})"
+            class="text-blue-500 font-semibold hover:text-blue-700">
+            ❤️ Like
+        </button>
+
+        <span id="like-count-{{ post.id }}">
+            {{ post.total_likes }}
+        </span>
+
+    </div>
+
+    <div class="mt-3">
+
+        <input id="comment-input-{{ post.id }}"
+            class="border p-2 w-full rounded-lg"
+            placeholder="Write a comment...">
+
+        <button onclick="addComment({{ post.id }})"
+            class="mt-2 bg-blue-500 text-white px-3 py-1 rounded-lg">
+            Comment
+        </button>
+
+        <div id="comment-box-{{ post.id }}"></div>
+
+    </div>
+
+</div>
+{% empty %}
+<p>No posts yet.</p>
+{% endfor %}
+
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+console.log("JS LOADED");
+
+function likePost(postId) {
+    console.log("LIKE CLICKED", postId);
+
+    fetch(`/like/${postId}/`)
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById(`like-count-${postId}`).innerText = data.total_likes;
+    });
+}
+
+function addComment(postId) {
+    console.log("COMMENT CLICKED", postId);
+
+    const input = document.getElementById(`comment-input-${postId}`);
+
+    fetch(`/comment/${postId}/`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: `body=${input.value}`
+    })
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById(`comment-box-${postId}`).innerHTML +=
+            `<div><b>${data.user}</b>: ${data.body}</div>`;
+
+        input.value = "";
+    });
+}
+</script>
+
+{% endblock %}
