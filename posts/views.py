@@ -6,8 +6,13 @@ from .models import Post , Like , Comment
 
 @login_required
 def feed(request):
-    posts = Post.objects.all().order_by('-created')
-    return render(request, 'feed.html', {'posts': posts})
+    posts = Post.objects.all().order_by('-id')
+    comments = Comment.objects.all()
+
+    return render(request, 'feed.html', {
+        'posts': posts,
+        'comments': comments
+    })
 
 @login_required
 def create_post(request):
@@ -49,6 +54,9 @@ def add_comment(request, post_id):
         post = get_object_or_404(Post, id=post_id)
         body = request.POST.get('body')
 
+        if not body or body.strip() == "":
+            return JsonResponse({'error': 'empty comment'}, status=400)
+
         comment = Comment.objects.create(
             user=request.user,
             post=post,
@@ -59,4 +67,5 @@ def add_comment(request, post_id):
             'user': request.user.username,
             'body': comment.body
         })
+
     return JsonResponse({'error': 'invalid request'}, status=400)

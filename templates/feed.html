@@ -7,17 +7,20 @@
 {% for post in posts %}
 <div class="bg-white p-4 mb-4 rounded-xl shadow">
 
+    <!-- USER INFO -->
     <div class="flex items-center mb-2">
         <div class="w-10 h-10 bg-gray-300 rounded-full mr-3"></div>
         <h3 class="font-semibold">{{ post.author.username }}</h3>
     </div>
 
+    <!-- POST CONTENT -->
     <p class="mb-3 text-gray-800">{{ post.content }}</p>
 
     {% if post.image %}
         <img src="{{ post.image.url }}" class="rounded-lg mb-3">
-    {% endif %} 
+    {% endif %}
 
+    <!-- LIKE SECTION -->
     <div class="mt-3 flex items-center gap-4">
 
         <button onclick="likePost({{ post.id }})"
@@ -31,6 +34,7 @@
 
     </div>
 
+    <!-- COMMENT INPUT -->
     <div class="mt-3">
 
         <input id="comment-input-{{ post.id }}"
@@ -42,11 +46,22 @@
             Comment
         </button>
 
-        <div id="comment-box-{{ post.id }}"></div>
+    </div>
+
+    <!-- COMMENTS (PERSISTENT FIX) -->
+    <div class="mt-3 space-y-1 text-sm text-gray-700"
+         id="comment-box-{{ post.id }}">
+
+        {% for comment in post.comment_set.all %}
+            <p>
+                <b>{{ comment.user.username }}</b>: {{ comment.body }}
+            </p>
+        {% endfor %}
 
     </div>
 
 </div>
+
 {% empty %}
 <p>No posts yet.</p>
 {% endfor %}
@@ -56,22 +71,24 @@
 {% block scripts %}
 
 <script>
-console.log("JS LOADED");
+
+console.log("JS LOADED ✔️");
 
 function likePost(postId) {
-    console.log("LIKE CLICKED", postId);
-
     fetch(`/like/${postId}/`)
     .then(res => res.json())
     .then(data => {
-        document.getElementById(`like-count-${postId}`).innerText = data.total_likes;
+        document.getElementById(`like-count-${postId}`).innerText =
+            data.total_likes;
     });
 }
 
 function addComment(postId) {
-    console.log("COMMENT CLICKED", postId);
 
     const input = document.getElementById(`comment-input-${postId}`);
+    const body = input.value;
+
+    if (!body.trim()) return;
 
     fetch(`/comment/${postId}/`, {
         method: "POST",
@@ -79,16 +96,21 @@ function addComment(postId) {
             "Content-Type": "application/x-www-form-urlencoded",
             "X-CSRFToken": "{{ csrf_token }}"
         },
-        body: `body=${input.value}`
+        body: `body=${body}`
     })
     .then(res => res.json())
     .then(data => {
-        document.getElementById(`comment-box-${postId}`).innerHTML +=
-            `<div><b>${data.user}</b>: ${data.body}</div>`;
+
+        const box = document.getElementById(`comment-box-${postId}`);
+
+        box.innerHTML += `
+            <p><b>${data.user}</b>: ${data.body}</p>
+        `;
 
         input.value = "";
     });
 }
+
 </script>
 
 {% endblock %}
