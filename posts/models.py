@@ -12,6 +12,9 @@ class Post(models.Model):
 
     def total_comments(self):
         return self.comment_set.count()
+    
+    def total_comments(self):
+        return self.comment_set.count()
 
 
 class Like(models.Model):

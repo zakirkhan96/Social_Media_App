@@ -64,3 +64,24 @@ def add_comment(request, post_id):
         })
 
     return JsonResponse({'error': 'invalid request'}, status=400)
+
+def post_detail(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    comments = Comment.objects.filter(post=post).order_by('-id')
+
+    if request.method == "POST":
+        if request.user.is_authenticated:
+            body = request.POST.get('body')
+
+            Comment.objects.create(
+                user=request.user,
+                post=post,
+                body=body
+            )
+
+            return redirect('post_detail', post_id=post_id)
+
+    return render(request, 'post_detail.html', {
+        'post': post,
+        'comments': comments
+    })
