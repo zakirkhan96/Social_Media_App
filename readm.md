@@ -152,4 +152,4 @@ MIT License
 
 👨‍💻 Author
 
-Your Name
+Zakir khan
