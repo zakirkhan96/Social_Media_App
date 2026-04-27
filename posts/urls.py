@@ -6,6 +6,6 @@ from .views import feed, create_post
 urlpatterns = [
     path('', feed, name='feed'),
     path('create/', create_post, name='create'),
-    path('like/<int:post_id>/', views.like_post, name='like'),
+    path('like/<int:post_id>/', views.like_post, name='like_post'),
     path('comment/<int:post_id>/', views.add_comment, name='comment'),
 ]

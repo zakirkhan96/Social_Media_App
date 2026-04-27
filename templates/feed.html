@@ -75,12 +75,21 @@
 console.log("JS LOADED ✔️");
 
 function likePost(postId) {
-    fetch(`/like/${postId}/`)
+    fetch(`/like/${postId}/`, {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": "{{ csrf_token }}"
+        }
+    })
     .then(res => res.json())
     .then(data => {
         document.getElementById(`like-count-${postId}`).innerText =
             data.total_likes;
     });
+    .then(res => {
+    if (!res.ok) throw new Error("Request failed");
+    return res.json();
+})
 }
 
 function addComment(postId) {

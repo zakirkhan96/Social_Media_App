@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="bg-white p-6 rounded-xl shadow mb-6">
+
+    <h2 class="text-2xl font-bold">{{ profile_user.username }}</h2>
+
+    <div class="flex gap-6 mt-3">
+        <p><b>{{ posts.count }}</b> Posts</p>
+        <p><b>{{ followers }}</b> Followers</p>
+        <p><b>{{ following }}</b> Following</p>
+    </div>
+
+</div>
+
+{% for post in posts %}
+<div class="bg-white p-4 mb-4 rounded-xl shadow">
+    <p>{{ post.content }}</p>
+</div>
+{% endfor %}
+
+{% endblock %}

@@ -3,10 +3,11 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect , get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Post , Like , Comment
+from django.views.decorators.http import require_POST
 
 @login_required
 def feed(request):
-    posts = Post.objects.all().order_by('-id')
+    posts = Post.objects.select_related('author').prefetch_related('comment_set', 'like_set').all().order_by('-id')
     comments = Comment.objects.all()
 
     return render(request, 'feed.html', {
@@ -23,25 +24,19 @@ def create_post(request):
         return redirect('feed')
     return render(request, 'create.html')
 
+@require_POST
 def like_post(request, post_id):
-    if not request.user.is_authenticated:
-        return JsonResponse({'error': 'not logged in'}, status=403)
-    
     post = get_object_or_404(Post, id=post_id)
 
-    like , created = Like.objects.get_or_create(
-        user = request.user,
-        post = post
+    like, created = Like.objects.get_or_create(
+        user=request.user,
+        post=post
     )
 
     if not created:
         like.delete()
-        liked = False
-    else:
-        liked = True
 
     return JsonResponse({
-        'liked': liked, 
         'total_likes': post.like_set.count()
     })
 
