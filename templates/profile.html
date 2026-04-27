@@ -4,16 +4,54 @@
 
 <div class="bg-white p-6 rounded-xl shadow mb-6">
 
-    <h2 class="text-2xl font-bold">{{ profile_user.username }}</h2>
+    <div class="flex items-center gap-6">
 
-    <div class="flex gap-6 mt-3">
-        <p><b>{{ posts.count }}</b> Posts</p>
-        <p><b>{{ followers }}</b> Followers</p>
-        <p><b>{{ following }}</b> Following</p>
+        <!-- PROFILE IMAGE -->
+        <img src="{{ profile.image.url }}"
+             class="w-24 h-24 rounded-full object-cover">
+
+        <div>
+            <h2 class="text-2xl font-bold">
+                {{ profile_user.username }}
+            </h2>
+
+            <p class="text-gray-600 mt-1">
+                {{ profile.bio }}
+            </p>
+
+            <div class="flex gap-6 mt-3 text-sm">
+                <p><b>{{ posts.count }}</b> Posts</p>
+                <p><b>{{ followers }}</b> Followers</p>
+                <p><b>{{ following }}</b> Following</p>
+            </div>
+        </div>
+
     </div>
 
 </div>
 
+<!-- EDIT PROFILE (ONLY OWNER) -->
+{% if request.user == profile_user %}
+<div class="bg-white p-4 rounded-xl shadow mb-6">
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <textarea name="bio"
+            class="w-full border p-2 rounded-lg"
+            placeholder="Write your bio...">{{ profile.bio }}</textarea>
+
+        <input type="file" name="image" class="mt-2">
+
+        <button class="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg">
+            Update Profile
+        </button>
+    </form>
+
+</div>
+{% endif %}
+
+<!-- POSTS -->
 {% for post in posts %}
 <div class="bg-white p-4 mb-4 rounded-xl shadow">
     <p>{{ post.content }}</p>
