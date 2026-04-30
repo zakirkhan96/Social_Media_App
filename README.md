@@ -94,58 +94,7 @@ python manage.py runserver
 
 ---
 
-## 🔧 Configuration
 
-### settings.py
-```python
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-urls.py
-from django.conf import settings
-from django.conf.urls.static import static
-
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-🧠 Architecture
-Like System
-AJAX (Fetch API)
-Real-time UI update
-Stored in database
-Comment System
-POST + CSRF
-Persistent storage
-Dynamic rendering
-Profile System
-OneToOne(User ↔ Profile)
-Auto-created via signals
-Image storage support
-⚠️ Common Issues
-Profile not found
-python manage.py shell
-from django.contrib.auth.models import User
-from accounts.models import Profile
-
-for user in User.objects.all():
-    Profile.objects.get_or_create(user=user)
-Images not showing
-Check MEDIA_URL
-Check MEDIA_ROOT
-Ensure static media serving enabled
-Like/Comment not working
-Check browser console
-Verify JS loading
-Check Django views & URLs
-🧪 Testing
-python manage.py test
-📦 requirements.txt
-Django>=6.0
-Pillow>=10.0
-🚀 Deployment Notes
-Set DEBUG = False
-Use PostgreSQL
-Run:
-python manage.py collectstatic
-Use Gunicorn + Nginx
 📜 License
 
 MIT License
